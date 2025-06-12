@@ -16,10 +16,17 @@ import (
 	"golang.org/x/oauth2"
 )
 
-func GoogleAuth (c *gin.Context) {
-    url := config.GoogleOAuthConfig.AuthCodeURL("state-token", oauth2.AccessTypeOffline)
-    c.Redirect(302, url)
-  	}
+func GoogleAuth(c *gin.Context) {
+	redirectURL := c.Query("redirect")
+	if redirectURL != "" {
+		// Store redirect URL in cookie (valid for 10 mins)
+		c.SetCookie("redirect_after_login", redirectURL, 600, "/", "", false, true)
+	}
+
+	// Generate Google OAuth URL and redirect
+	url := config.GoogleOAuthConfig.AuthCodeURL("state-token", oauth2.AccessTypeOffline)
+	c.Redirect(302, url)
+}
 
 func GoogleAuthCallback(c *gin.Context) {
 	code := c.Query("code")
@@ -109,9 +116,12 @@ func GoogleAuthCallback(c *gin.Context) {
 	true,      // HttpOnly
 )
 
-	// 6. Send access token to frontend
-	frontendURL := "http://192.168.0.34:3000/"
-	c.Redirect(http.StatusFound, frontendURL)
+	redirectURL, err := c.Cookie("redirect_after_login")
+if err != nil || redirectURL == "" {
+	redirectURL = "http://localhost:3000/"
+}
+c.SetCookie("redirect_after_login", "", -1, "/", "", false, true)
+c.Redirect(http.StatusFound, redirectURL)
 
 }
 
