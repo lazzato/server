@@ -1,0 +1,29 @@
+name: Build Windows .exe
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: 📥 Checkout code
+        uses: actions/checkout@v3
+
+      - name: 🛠 Set up Go
+        uses: actions/setup-go@v4
+        with:
+          go-version: 1.21
+
+      - name: 🧱 Build Windows .exe
+        run: |
+          GOOS=windows GOARCH=amd64 CGO_ENABLED=0 go build -o myapp.exe .
+
+      - name: 📦 Upload .exe as artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: myapp-windows
+          path: myapp.exe
