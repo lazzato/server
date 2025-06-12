@@ -27,13 +27,7 @@ func main() {
 
 	auth := r.Group("/api")
 	auth.Use(config.AuthMiddleware())
-	auth.GET("/me", func(c *gin.Context) {
-		userID := c.MustGet("userID").(uint)
-		c.JSON(200, gin.H{
-			"message": "Hello, World!",
-			"userID":  userID,
-		})
-	})
+	auth.GET("/me", controllers.GetMeHandler)
 
 	r.Run() // listen and serve on
 }
