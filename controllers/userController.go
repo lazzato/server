@@ -102,8 +102,8 @@ func GoogleAuthCallback(c *gin.Context) {
 		60*60*24*30,      // max-age (30 days)
 		"/",              // path
 		"",               // domain
-		false,            // secure (use true if on HTTPS)
-		false,             // httpOnly
+		true,            // secure (use true if on HTTPS)
+		true,             // httpOnly
 	)
 
 	c.SetCookie(
@@ -112,8 +112,8 @@ func GoogleAuthCallback(c *gin.Context) {
 	60*30,     // 30 minutes
 	"/",
 	"",
-	false,     // true if using HTTPS
-	false,      // HttpOnly
+	true,     // true if using HTTPS
+	true,      // HttpOnly
 )
 
 	redirectURL, err := c.Cookie("redirect_after_login")
