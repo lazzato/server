@@ -110,7 +110,7 @@ func GoogleAuthCallback(c *gin.Context) {
 )
 
 	// 6. Send access token to frontend
-	frontendURL := "http://localhost:3000/"
+	frontendURL := "http://192.168.0.34:3000/"
 	c.Redirect(http.StatusFound, frontendURL)
 
 }
