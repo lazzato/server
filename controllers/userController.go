@@ -162,3 +162,14 @@ func GetMeHandler(c *gin.Context) {
 	})
 }
 
+
+
+func LogoutHandler(c *gin.Context) {
+	// Delete the access_token
+	c.SetCookie("access_token", "", -1, "/", ".thebkht.com", true, true)
+
+	// Delete the refresh_token
+	c.SetCookie("refresh_token", "", -1, "/", ".thebkht.com", true, true)
+
+	c.JSON(http.StatusOK, gin.H{"message": "Logged out successfully"})
+}

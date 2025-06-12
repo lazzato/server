@@ -38,6 +38,7 @@ func main() {
 	r.GET("/auth/google/login", controllers.GoogleAuth)
 	r.GET("/auth/google/callback", controllers.GoogleAuthCallback)
 	r.POST("/auth/refresh", controllers.RefreshAccessToken)
+	r.POST("/auth/logout", controllers.LogoutHandler)
 
 	auth := r.Group("/api")
 	auth.Use(config.AuthMiddleware())
