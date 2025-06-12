@@ -99,10 +99,19 @@ func GoogleAuthCallback(c *gin.Context) {
 		true,             // httpOnly
 	)
 
-	// 6. Send access token to frontend
-	frontendURL := "http://localhost:3000/auth/callback?token=" + accessToken
-	c.Redirect(http.StatusFound, frontendURL)
+	c.SetCookie(
+	"access_token",
+	accessToken,
+	60*30,     // 30 minutes
+	"/",
+	"",
+	false,     // true if using HTTPS
+	true,      // HttpOnly
+)
 
+	// 6. Send access token to frontend
+	frontendURL := "http://localhost:3000/"
+	c.Redirect(http.StatusFound, frontendURL)
 
 }
 
