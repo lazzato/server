@@ -93,10 +93,13 @@ func GoogleAuthCallback(c *gin.Context) {
 		return
 	}
 
+	accessToken_duration := 60 // 1 minute
+	refreshToken_duration := 60 * 60 * 24 * 30 // 30 days
+
 	// 5. Set access and refresh tokens in HttpOnly, cross-subdomain cookies
 	c.SetSameSite(http.SameSiteNoneMode)
-	c.SetCookie("access_token", accessToken, 60*30, "/", ".thebkht.com", true, true)
-	c.SetCookie("refresh_token", refreshToken, 60*60*24*30, "/", ".thebkht.com", true, true)
+	c.SetCookie("access_token", accessToken, accessToken_duration, "/", ".thebkht.com", true, true)
+	c.SetCookie("refresh_token", refreshToken, refreshToken_duration, "/", ".thebkht.com", true, true)
 
 	// 6. Read and clear redirect cookie
 	redirectURL, err := c.Cookie("redirect_after_login")
