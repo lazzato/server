@@ -130,7 +130,12 @@ func RefreshAccessToken(c *gin.Context) {
 		return
 	}
 
-	claims := token.Claims.(jwt.MapClaims)
+	claims, ok := token.Claims.(jwt.MapClaims)
+	if !ok || claims["sub"] == nil {
+		c.JSON(http.StatusUnauthorized, gin.H{"error": "Invalid claims"})
+		return
+	}
+
 	userID := uint(claims["sub"].(float64))
 
 	newAccessToken, err := utils.GenerateAccessToken(userID)
@@ -139,10 +144,23 @@ func RefreshAccessToken(c *gin.Context) {
 		return
 	}
 
-	c.JSON(http.StatusOK, gin.H{
-		"access_token": newAccessToken,
-	})
+	tokenDuration := 60  // 1 minute
+
+	// Set the new access token in HttpOnly cookie (1 minute)
+	c.SetCookie(
+		"access_token",
+		newAccessToken,
+		tokenDuration, // 1 minute
+		"/",
+		".thebkht.com",    // "" for localhost, or ".thebkht.com" in prod
+		true,  // set to true in prod (HTTPS)
+		true,  // HttpOnly
+	)
+
+	// Optionally, return a success status
+	c.JSON(http.StatusOK, gin.H{"message": "Access token refreshed"})
 }
+
 
 func GetMeHandler(c *gin.Context) {
 	userID, exists := c.Get("userID")
