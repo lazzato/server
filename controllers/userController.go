@@ -103,7 +103,7 @@ func GoogleAuthCallback(c *gin.Context) {
 		"/",              // path
 		"",               // domain
 		false,            // secure (use true if on HTTPS)
-		true,             // httpOnly
+		false,             // httpOnly
 	)
 
 	c.SetCookie(
@@ -113,7 +113,7 @@ func GoogleAuthCallback(c *gin.Context) {
 	"/",
 	"",
 	false,     // true if using HTTPS
-	true,      // HttpOnly
+	false,      // HttpOnly
 )
 
 	redirectURL, err := c.Cookie("redirect_after_login")
