@@ -100,9 +100,10 @@ func GoogleAuthCallback(c *gin.Context) {
 	)
 
 	// 6. Send access token to frontend
-	c.JSON(http.StatusOK, gin.H{
-		"access_token": accessToken,
-	})
+	frontendURL := "http://localhost:3000/auth/callback?token=" + accessToken
+	c.Redirect(http.StatusFound, frontendURL)
+
+
 }
 
 
