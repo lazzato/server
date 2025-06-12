@@ -67,7 +67,6 @@ func GoogleAuthCallback(c *gin.Context) {
 	// 3. Check if user exists in DB
 	var user models.User
 	result := initializers.DB.Where("google_id = ?", ui.Sub).First(&user)
-
 	if result.Error != nil {
 		// User not found — create a new owner
 		user = models.User{
@@ -88,42 +87,28 @@ func GoogleAuthCallback(c *gin.Context) {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to create access token"})
 		return
 	}
-
 	refreshToken, err := utils.GenerateRefreshToken(user.ID)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to create refresh token"})
 		return
 	}
 
-	// 5. Set refresh token in secure HttpOnly cookie (valid for 30 days)
-	c.SetCookie(
-		"refresh_token",  // name
-		refreshToken,     // value
-		60*60*24*30,      // max-age (30 days)
-		"/",              // path
-		"",               // domain
-		true,            // secure (use true if on HTTPS)
-		true,             // httpOnly
-	)
+	// 5. Set access and refresh tokens in HttpOnly, cross-subdomain cookies
+	c.SetSameSite(http.SameSiteNoneMode)
+	c.SetCookie("access_token", accessToken, 60*30, "/", ".thebkht.com", true, true)
+	c.SetCookie("refresh_token", refreshToken, 60*60*24*30, "/", ".thebkht.com", true, true)
 
-	c.SetCookie(
-	"access_token",
-	accessToken,
-	60*30,     // 30 minutes
-	"/",
-	"",
-	true,     // true if using HTTPS
-	true,      // HttpOnly
-)
-
+	// 6. Read and clear redirect cookie
 	redirectURL, err := c.Cookie("redirect_after_login")
-if err != nil || redirectURL == "" {
-	redirectURL = "http://localhost:3000/"
-}
-c.SetCookie("redirect_after_login", "", -1, "/", "", false, true)
-c.Redirect(http.StatusFound, redirectURL)
+	if err != nil || redirectURL == "" {
+		redirectURL = "https://dashboard.thebkht.com/" // fallback to default
+	}
+	c.SetCookie("redirect_after_login", "", -1, "/", ".thebkht.com", true, true)
 
+	// 7. Redirect to frontend
+	c.Redirect(http.StatusFound, redirectURL)
 }
+
 
 
 
